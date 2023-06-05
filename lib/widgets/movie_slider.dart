@@ -1,14 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:peliculasapp/models/models.dart';
 
-class MovieSlider extends StatelessWidget {
+class MovieSlider extends StatefulWidget {
+  final List<Movie> movies;
+  final Function onNextPage;
+
+  MovieSlider(
+      {Key? key, required this.movies, String? title, required this.onNextPage})
+      : super(key: key);
+
+  @override
+  State<MovieSlider> createState() => _MovieSliderState();
+}
+
+class _MovieSliderState extends State<MovieSlider> {
+  final ScrollController scrollControler = new ScrollController();
+
+  // Ejecutamos codigo la primera vez que se construye el metodo
+  @override
+  void initState() {
+    scrollControler.addListener(() {
+      // 1*
+      if (scrollControler.position.pixels >=
+          scrollControler.position.maxScrollExtent - 500) {
+        widget.onNextPage();
+        print("He recargado la pagina");
+      }
+    });
+    super.initState();
+  }
+
+  // Se llama cuando el widget muere
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 270,
+      height: 300,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          //TODO si no hay titulo no mostraoms el widget
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Center(
@@ -20,9 +57,10 @@ class MovieSlider extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: 10,
+              controller: scrollControler,
+              itemCount: widget.movies.length,
               scrollDirection: Axis.horizontal,
-              itemBuilder: (_, int index) => _MoviePoster(),
+              itemBuilder: (_, int index) => _MoviePoster(widget.movies[index]),
             ),
           ),
         ],
@@ -35,30 +73,35 @@ class MovieSlider extends StatelessWidget {
 // Fernando dijo "Este widget no vivira en el mundo exterior"
 
 class _MoviePoster extends StatelessWidget {
+  final Movie movie;
+
+  const _MoviePoster(this.movie);
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 130,
+      width: 160,
       height: 150,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, 'details',
-                arguments: "movie-instance"),
+            onTap: () =>
+                Navigator.pushNamed(context, 'details', arguments: movie),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: const FadeInImage(
+              child: FadeInImage(
                 placeholder: AssetImage("assets/no-image.jpg"),
-                image: NetworkImage("https://via.placeholder.com/300x400"),
-                width: 130,
-                height: 170,
+                image: NetworkImage(movie.fullPosterImg),
+                width: 135,
+                height: 200,
               ),
             ),
           ),
           SizedBox(height: 7),
           Text(
-            "Star Wars ssssssssssssssssssss",
+            movie.title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
             textAlign: TextAlign.center,
@@ -68,3 +111,10 @@ class _MoviePoster extends StatelessWidget {
     );
   }
 }
+
+
+// 1*
+/*
+Este if controla la posicion actual del slider para lanzar la peticion de pedir peliculas cuando estemos 500 pixeles antes del final del sldier (ultiam peloicula) ahi relanzaremos lapeticion con pagina + 1 en el backend para que nos traiga la siguiente. 
+
+*/
