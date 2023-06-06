@@ -18,7 +18,7 @@ class DetailsScreen extends StatelessWidget {
               [
                 _PosterAndTitle(movie: movie),
                 _Overview(movie: movie),
-                CastingCards(),
+                CastingCards(movie.id)
               ],
             ),
           ),
@@ -50,6 +50,8 @@ class _CustomAppBar extends StatelessWidget {
           padding: EdgeInsets.only(bottom: 10),
           child: Text(
             movie.title,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
             style: TextStyle(fontSize: 16),
           ),
         ),
@@ -74,44 +76,48 @@ class _PosterAndTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextTheme theme = Theme.of(context).textTheme;
-    print(movie.fullPosterImg);
-
     return Container(
       margin: const EdgeInsets.only(top: 20),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: FadeInImage(
-              image: const AssetImage("assets/no-image.jpg"),
-              placeholder: NetworkImage(movie.fullPosterImg),
-              height: 150,
+          Hero(
+            tag: movie.heroId!,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: FadeInImage(
+                placeholder: const AssetImage("assets/no-image.jpg"),
+                image: NetworkImage(movie.fullPosterImg),
+                height: 150,
+              ),
             ),
           ),
           const SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(movie.title,
-                  style: theme.headline5,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2),
-              Text(movie.originalTitle,
-                  style: theme.subtitle1,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2),
-              Row(
-                children: [
-                  const Icon(Icons.star_outline, size: 15, color: Colors.grey),
-                  const SizedBox(width: 5),
-                  Text(
-                    movie.voteAverage.toString(),
-                    style: theme.caption,
-                  )
-                ],
-              )
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(movie.title,
+                    style: theme.headline5,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2),
+                Text(movie.originalTitle,
+                    style: theme.subtitle1,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2),
+                Row(
+                  children: [
+                    const Icon(Icons.star_outline,
+                        size: 15, color: Colors.grey),
+                    const SizedBox(width: 5),
+                    Text(
+                      movie.voteAverage.toString(),
+                      style: theme.caption,
+                    )
+                  ],
+                )
+              ],
+            ),
           ),
         ],
       ),

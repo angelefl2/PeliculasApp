@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peliculasapp/providers/movies_provider.dart';
+import 'package:peliculasapp/search/search_delegate.dart';
 import 'package:peliculasapp/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +15,8 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search_outlined),
-            onPressed: () {},
+            onPressed: () =>
+                showSearch(context: context, delegate: MovieSearchDelegate()),
           )
         ],
         elevation: 0,

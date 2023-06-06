@@ -16,6 +16,8 @@ class Movie {
   bool video;
   double voteAverage;
   int voteCount;
+  String?
+      heroId; // para generar un id unico para un widget y hacer la animacion de heroAnimator sin que haya conflictos
 
   get fullPosterImg {
     if (this.posterPath != null) {
@@ -26,7 +28,7 @@ class Movie {
   }
 
   get fullBackDropPath {
-    if (this.fullBackDropPath != null) {
+    if (this.backdropPath != null) {
       return "https://image.tmdb.org/t/p/w500${this.backdropPath}";
     } else {
       return 'https://i.stack.imgur.com/GNhxO.png';

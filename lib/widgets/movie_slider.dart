@@ -4,9 +4,10 @@ import 'package:peliculasapp/models/models.dart';
 class MovieSlider extends StatefulWidget {
   final List<Movie> movies;
   final Function onNextPage;
+  final String? title;
 
   MovieSlider(
-      {Key? key, required this.movies, String? title, required this.onNextPage})
+      {Key? key, required this.movies, required this.onNextPage, this.title})
       : super(key: key);
 
   @override
@@ -24,7 +25,6 @@ class _MovieSliderState extends State<MovieSlider> {
       if (scrollControler.position.pixels >=
           scrollControler.position.maxScrollExtent - 500) {
         widget.onNextPage();
-        print("He recargado la pagina");
       }
     });
     super.initState();
@@ -60,7 +60,9 @@ class _MovieSliderState extends State<MovieSlider> {
               controller: scrollControler,
               itemCount: widget.movies.length,
               scrollDirection: Axis.horizontal,
-              itemBuilder: (_, int index) => _MoviePoster(widget.movies[index]),
+              itemBuilder: (_, int index) => _MoviePoster(
+                  movie: widget.movies[index],
+                  heroId: '${widget.title}-$index-${widget.movies[index].id}'),
             ),
           ),
         ],
@@ -74,11 +76,13 @@ class _MovieSliderState extends State<MovieSlider> {
 
 class _MoviePoster extends StatelessWidget {
   final Movie movie;
+  final String heroId;
 
-  const _MoviePoster(this.movie);
+  const _MoviePoster({required this.movie, required this.heroId});
 
   @override
   Widget build(BuildContext context) {
+    movie.heroId = heroId;
     return Container(
       width: 160,
       height: 150,
@@ -88,13 +92,16 @@ class _MoviePoster extends StatelessWidget {
           GestureDetector(
             onTap: () =>
                 Navigator.pushNamed(context, 'details', arguments: movie),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: FadeInImage(
-                placeholder: AssetImage("assets/no-image.jpg"),
-                image: NetworkImage(movie.fullPosterImg),
-                width: 135,
-                height: 200,
+            child: Hero(
+              tag: movie.heroId!,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: FadeInImage(
+                  placeholder: AssetImage("assets/no-image.jpg"),
+                  image: NetworkImage(movie.fullPosterImg),
+                  width: 135,
+                  height: 200,
+                ),
               ),
             ),
           ),
