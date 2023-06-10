@@ -26,8 +26,8 @@ class MoviesProvider extends ChangeNotifier {
 
   MoviesProvider() {
     print("MoviesProvider incializado");
-    getNowPlayingMovies();
-    getPopularMovies();
+    //getNowPlayingMovies();
+    //getPopularMovies();
   }
   // El argumento page va entre llaves porqe es opcional, si viene vacio toma el valor 1
   Future<String> _getJsonData(String endPoint, [int page = 1]) async {
