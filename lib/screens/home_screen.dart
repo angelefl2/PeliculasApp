@@ -11,6 +11,7 @@ class HomeScreen extends StatelessWidget {
     final moviesProvider = Provider.of<MoviesProvider>(context);
 
     return Scaffold(
+      drawer: NavigationDrawer(),
       appBar: AppBar(
         actions: [
           IconButton(
