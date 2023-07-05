@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -12,28 +13,37 @@ class MoviesProvider extends ChangeNotifier {
   final String _apiKey = '55cc2a209d599c9dc68ac1aba53a682e';
   final String _languaje = 'es-ES';
   List<Movie> onDisplayMovies = [];
-  List<Movie> popularMovies =
-      []; // Aqui vamos a tener los resultados, es la lista que tendremos que escuchar desde los widgets
+  List<Movie> popularMovies = [];
+  List<Movie> topRatedMovies = [];
+  List<Movie> upComingMovies = [];
   Map<int, List<Cast>> moviesCast = {};
   int _popularPage = 0;
-  final debouncer = Debouncer(duration: Duration(milliseconds: 500));
+  int _topRatedPage = 0;
+  int _upcomingPage = 0;
+  final debouncer = Debouncer(duration: const Duration(milliseconds: 500));
   // Con broadcast definimos que varios elementos pueden conectarse para escuchar el stream
   final StreamController<List<Movie>> _suggestionStreamController =
-      new StreamController.broadcast();
+      StreamController.broadcast();
 
   Stream<List<Movie>> get suggestionStream =>
-      this._suggestionStreamController.stream;
+      _suggestionStreamController.stream;
 
   MoviesProvider() {
-    print("MoviesProvider incializado");
     getNowPlayingMovies();
     getPopularMovies();
+    getTopRatedMovies();
+    getUpcomingMovies();
   }
   // El argumento page va entre llaves porqe es opcional, si viene vacio toma el valor 1
   Future<String> _getJsonData(String endPoint, [int page = 1]) async {
-    final url = Uri.https(_baseUrl, endPoint,
-        {'api_key': _apiKey, 'language': _languaje, 'page': "$page"});
+    final url = Uri.https(_baseUrl, endPoint, {
+      'api_key': _apiKey,
+      'language': _languaje,
+      'page': "$page",
+      'region': "ES"
+    });
     final response = await http.get(url);
+    print(url);
     return response.body;
   }
 
@@ -50,6 +60,22 @@ class MoviesProvider extends ChangeNotifier {
     final jsonData = await _getJsonData("3/movie/popular", _popularPage);
     final popularResponse = PopularResponse.fromJson(jsonData);
     popularMovies = [...popularMovies, ...popularResponse.results];
+    notifyListeners();
+  }
+
+  getTopRatedMovies() async {
+    _topRatedPage++;
+    final jsonData = await _getJsonData("3/movie/top_rated", _topRatedPage);
+    final popularResponse = PopularResponse.fromJson(jsonData);
+    topRatedMovies = [...topRatedMovies, ...popularResponse.results];
+    notifyListeners();
+  }
+
+  getUpcomingMovies() async {
+    _upcomingPage++;
+    final jsonData = await _getJsonData("/3/movie/upcoming", _upcomingPage);
+    final popularResponse = PopularResponse.fromJson(jsonData);
+    upComingMovies = [...upComingMovies, ...popularResponse.results];
     notifyListeners();
   }
 
@@ -72,19 +98,32 @@ class MoviesProvider extends ChangeNotifier {
     return searchResponse.results;
   }
 
-  void getSuggestionsByQuery(String searchTerm) {
+  void getSuggestionsByQuery(String searchTerm, Duration duracion) {
     debouncer.value = "";
     debouncer.onValue = (value) async {
       //3*
-      final results = await this.searchMovies(searchTerm);
-      this._suggestionStreamController.add(results);
+      final results = await searchMovies(searchTerm);
+      _suggestionStreamController.add(results);
     };
 
-    final timer = Timer.periodic(Duration(milliseconds: 300), (_) {
+    final timer = Timer.periodic(duracion, (_) {
       debouncer.value = searchTerm;
     });
 
-    Future.delayed(Duration(milliseconds: 301)).then((_) => timer.cancel());
+    Future.delayed(duracion).then((_) => timer.cancel());
+  }
+
+  Future<Proveedor?> getStreamProvider(int movieId) async {
+    //if (moviesCast.containsKey(movieId)) return moviesCast[movieId]!;
+    final jsonData = await _getJsonData("/3/movie/$movieId/watch/providers");
+    final creditsResponse = StreamProvider.fromJson(jsonData);
+
+    if (creditsResponse.results.containsKey("ES")) {
+      Proveedor proveedores = creditsResponse.results["ES"]!;
+      return proveedores;
+    } else {
+      return null;
+    }
   }
 }
 

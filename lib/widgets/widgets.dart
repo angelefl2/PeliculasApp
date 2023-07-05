@@ -3,6 +3,7 @@ export 'package:peliculasapp/widgets/casting_cards.dart';
 export 'package:peliculasapp/widgets/movie_slider.dart';
 export 'package:peliculasapp/widgets/navigation_drawer.dart';
 export 'package:peliculasapp/widgets/custom_outlined_button.dart';
+export 'package:peliculasapp/widgets/where_to_see_card.dart';
 
 
 

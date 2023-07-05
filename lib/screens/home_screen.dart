@@ -21,21 +21,39 @@ class HomeScreen extends StatelessWidget {
           )
         ],
         elevation: 0,
-        title: const Text("Peliculas en cines"),
+        title: const Text("Principal"),
       ),
       // Este widget le da scroll a todo lo que contenga (pantalla infinita)
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            CardSwiper(
-              movies: moviesProvider.onDisplayMovies,
-            ),
-            MovieSlider(
-              movies: moviesProvider.popularMovies,
-              title: "Populares", // opcional
-              onNextPage: () => moviesProvider.getPopularMovies(),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              /* CardSwiper(
+                movies: moviesProvider.onDisplayMovies,
+              ),*/
+              MovieSlider(
+                movies: moviesProvider.upComingMovies,
+                title: "Proximos lanzamientos", // opcional
+                onNextPage: () => moviesProvider.getUpcomingMovies(),
+              ),
+              MovieSlider(
+                movies: moviesProvider.onDisplayMovies,
+                title: "En cines", // opcional
+                onNextPage: () => {},
+              ),
+              MovieSlider(
+                movies: moviesProvider.popularMovies,
+                title: "Populares", // opcional
+                onNextPage: () => moviesProvider.getPopularMovies(),
+              ),
+              MovieSlider(
+                movies: moviesProvider.topRatedMovies,
+                title: "Mas votadas", // opcional
+                onNextPage: () => moviesProvider.getTopRatedMovies(),
+              ),
+            ],
+          ),
         ),
       ),
     );

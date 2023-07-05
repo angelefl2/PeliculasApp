@@ -15,7 +15,7 @@ class MovieSlider extends StatefulWidget {
 }
 
 class _MovieSliderState extends State<MovieSlider> {
-  final ScrollController scrollControler = new ScrollController();
+  final ScrollController scrollControler = ScrollController();
 
   // Ejecutamos codigo la primera vez que se construye el metodo
   @override
@@ -33,28 +33,25 @@ class _MovieSliderState extends State<MovieSlider> {
   // Se llama cuando el widget muere
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 300,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //TODO si no hay titulo no mostraoms el widget
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Center(
-              child: Text(
-                "Populares",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
+          Text(
+            widget.title!,
+            style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.indigo),
           ),
+          const SizedBox(height: 7),
           Expanded(
             child: ListView.builder(
               controller: scrollControler,
@@ -83,37 +80,38 @@ class _MoviePoster extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     movie.heroId = heroId;
-    return Container(
-      width: 160,
-      height: 150,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () =>
-                Navigator.pushNamed(context, 'details', arguments: movie),
-            child: Hero(
-              tag: movie.heroId!,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: FadeInImage(
-                  placeholder: AssetImage("assets/no-image.jpg"),
-                  image: NetworkImage(movie.fullPosterImg),
-                  width: 135,
-                  height: 200,
+    return FittedBox(
+      child: SizedBox(
+        height: 250,
+        width: 140,
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () =>
+                  Navigator.pushNamed(context, 'details', arguments: movie),
+              child: Hero(
+                tag: movie.heroId!,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: FadeInImage(
+                    placeholder: const AssetImage("assets/no-image.jpg"),
+                    image: NetworkImage(movie.fullPosterImg),
+                    width: 135,
+                    height: 200,
+                  ),
                 ),
               ),
             ),
-          ),
-          SizedBox(height: 7),
-          Text(
-            movie.title,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 7),
+            Text(
+              movie.title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

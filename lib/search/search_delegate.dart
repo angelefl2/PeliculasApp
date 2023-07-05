@@ -31,15 +31,31 @@ class MovieSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    return Text("buildResults");
+    if (query.isEmpty) return _EmptyContainer();
+    final moviesProvider = Provider.of<MoviesProvider>(context, listen: false);
+    moviesProvider.getSuggestionsByQuery(
+        query, const Duration(milliseconds: 0));
+
+    // Al implementar el debouncer para no hacer peticiones dejamos obsoleto este future builder que tambien funciona.
+    return StreamBuilder(
+      stream: moviesProvider.suggestionStream,
+      builder: (_, AsyncSnapshot<List<Movie>> snapshot) {
+        if (!snapshot.hasData) return _EmptyContainer();
+        final movies = snapshot.data!;
+        return ListView.builder(
+          itemCount: movies.length,
+          itemBuilder: (_, int index) => _MovieItem(movies[index]),
+        );
+      },
+    );
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.isEmpty) return _EmptyContainer();
-
     final moviesProvider = Provider.of<MoviesProvider>(context, listen: false);
-    moviesProvider.getSuggestionsByQuery(query);
+    moviesProvider.getSuggestionsByQuery(
+        query, const Duration(milliseconds: 300));
 
     // Al implementar el debouncer para no hacer peticiones dejamos obsoleto este future builder que tambien funciona.
     return StreamBuilder(
@@ -69,7 +85,7 @@ class _MovieItem extends StatelessWidget {
         tag: movie.heroId!,
         child: FadeInImage(
           width: 50,
-          placeholder: AssetImage("assets/loading.gif"),
+          placeholder: const AssetImage("assets/loading.gif"),
           image: NetworkImage(movie.fullPosterImg),
           fit: BoxFit.cover,
         ),
